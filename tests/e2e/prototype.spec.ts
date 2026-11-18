@@ -52,7 +52,11 @@ for (const [name, filename] of [
       true,
     );
     await page.getByRole("button", { name: "Podgląd", exact: true }).click();
-    await expect(page.locator("iframe[title='Podgląd CV (PDF)']")).toBeVisible();
+    const cvPreviewDialog = page.getByRole("dialog", { name: "Podgląd CV" });
+    await expect(cvPreviewDialog).toBeVisible();
+    await expect(cvPreviewDialog.locator("iframe[title='Podgląd CV (PDF)']")).toBeVisible();
+    await cvPreviewDialog.getByRole("button", { name: "Zamknij", exact: true }).click();
+    await expect(cvPreviewDialog).toBeHidden();
     await page.getByRole("button", { name: "Usuń załączone CV", exact: true }).click();
     await expect(page.getByRole("status")).toContainText("Załącznik został usunięty.");
     await page.getByRole("button", { name: "Cofnij", exact: true }).click();
@@ -492,6 +496,14 @@ test("candidate completes, saves and edits the session-only AI experience questi
   await page.getByLabel("Jaki przykład chcesz opisać?").fill("Analiza opinii użytkowników");
   await page.getByLabel("Co chciałaś lub chciałeś osiągnąć?").fill("Skrócić analizę odpowiedzi");
   await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Wybierz przykład/ })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+  await expect(page.getByRole("button", { name: /Sytuacja przed zmianą/ })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
 
   await page
     .getByLabel("Jak ta praca lub proces wyglądały wcześniej?")
@@ -544,7 +556,10 @@ test("candidate completes, saves and edits the session-only AI experience questi
   await expect(page.getByRole("heading", { name: "Doświadczenie w pracy z AI" })).toBeVisible();
   await expect(page.locator("main")).toContainText("Analiza opinii użytkowników");
   await page.getByRole("link", { name: "Edytuj odpowiedzi", exact: true }).click();
-  await expect(page.getByText("Krok 1 z 6", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Wybierz przykład/ })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   await expect(page.getByLabel("Jaki przykład chcesz opisać?")).toHaveValue(
     "Analiza opinii użytkowników",
   );
@@ -560,11 +575,30 @@ test("candidate can finish the manual AI questionnaire without answering optiona
   await page.goto("/#/app/profil");
   await page.getByRole("link", { name: "Wypełnij ankietę", exact: true }).click();
 
-  for (let step = 1; step < 6; step += 1) {
-    await expect(page.getByText(`Krok ${step} z 6`, { exact: true })).toBeVisible();
+  const sectionNames = [
+    "Wybierz przykład",
+    "Sytuacja przed zmianą",
+    "Twój wkład",
+    "Jak wykorzystujesz AI",
+    "Decyzje i kontrola jakości",
+    "Rezultat i refleksja",
+  ];
+  await page.getByRole("button", { name: /Twój wkład/ }).click();
+  await expect(page.getByRole("button", { name: /Twój wkład/ })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  await page.getByRole("button", { name: /Wybierz przykład/ }).click();
+  for (let step = 0; step < sectionNames.length - 1; step += 1) {
+    await expect(
+      page.getByRole("button", { name: new RegExp(sectionNames[step]) }),
+    ).toHaveAttribute("aria-expanded", "true");
     await page.getByRole("button", { name: "Dalej", exact: true }).click();
   }
-  await expect(page.getByText("Krok 6 z 6", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Rezultat i refleksja/ })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   await page.getByRole("button", { name: "Zapisz w profilu", exact: true }).click();
   await expect(page.getByText("0% uzupełnienia informacji", { exact: true })).toBeVisible();
 });
@@ -589,7 +623,10 @@ test("candidate completes the shared questionnaire with a simulated portfolio dr
   });
   await expect(prepareDraft).toBeEnabled();
   await prepareDraft.click();
-  await expect(page.getByText("Krok 1 z 6", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Wybierz przykład/ })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   await expect(page.getByLabel("Jaki przykład chcesz opisać?")).toHaveValue(
     "Analiza opinii użytkowników po badaniach produktu",
   );
