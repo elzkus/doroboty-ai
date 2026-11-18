@@ -1,6 +1,6 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { BriefcaseBusiness, Clock3, Info, Sparkles } from "lucide-react";
+import { BriefcaseBusiness, Check, ChevronDown, Clock3, Info, Sparkles } from "lucide-react";
 import { BackLink } from "@/components/back-link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -295,13 +295,16 @@ export function AiExperienceQuestionnairePage() {
     existing ? "manual" : selectedSource === "portfolio" ? "portfolio-link" : "manual",
   );
   const [step, setStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>(
+    existing ? manualSteps.map((_, index) => index) : [],
+  );
   const [draft, setDraft] = useState<AiExperience>(existing ?? emptyAiExperience(selectedSource));
   const [errors, setErrors] = useState<ExperienceKey[]>([]);
   const [portfolioConsent, setPortfolioConsent] = useState(false);
   const [portfolioRisk, setPortfolioRisk] = useState(false);
   const [urlError, setUrlError] = useState("");
 
-  const progress = useMemo(() => Math.round(((step + 1) / manualSteps.length) * 100), [step]);
+  const sectionButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   function update<Key extends ExperienceKey>(key: Key, value: AiExperience[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -309,8 +312,14 @@ export function AiExperienceQuestionnairePage() {
   }
 
   function nextStep() {
-    if (step === manualSteps.length - 1) save();
-    else setStep((current) => current + 1);
+    setCompletedSteps((current) => (current.includes(step) ? current : [...current, step]));
+    if (step === manualSteps.length - 1) {
+      save();
+      return;
+    }
+    const next = step + 1;
+    setStep(next);
+    window.requestAnimationFrame(() => sectionButtonRefs.current[next]?.focus());
   }
 
   function preparePortfolio() {
@@ -319,6 +328,7 @@ export function AiExperienceQuestionnairePage() {
       if (!["http:", "https:"].includes(url.protocol)) throw new Error();
       setUrlError("");
       setDraft(portfolioDraft(url.toString()));
+      setCompletedSteps([]);
       setStep(0);
       setStage("manual");
     } catch {
@@ -400,40 +410,81 @@ export function AiExperienceQuestionnairePage() {
     );
 
   if (stage === "manual") {
-    const current = manualSteps[step];
     return (
       <section className="experience-page experience-narrow-page">
         <BackLink to="/app/profil">Wróć do profilu</BackLink>
-        <header className="experience-page-header experience-progress-header">
+        <header className="experience-page-header">
           <h1>Opisz swoje doświadczenie w pracy z AI</h1>
           <p>
-            Krok {step + 1} z {manualSteps.length}
+            Przejdź przez kolejne sekcje. Wszystkie pytania są opcjonalne, a odpowiedzi możesz
+            później edytować.
           </p>
-          <progress
-            value={progress}
-            max="100"
-            aria-label={`Krok ${step + 1} z ${manualSteps.length}`}
-          />
         </header>
-        <div className="experience-form-card">
-          <header>
-            <h2>{current.title}</h2>
-            <p>{current.description}</p>
-          </header>
-          <StepFields step={step} draft={draft} errors={errors} update={update} />
-          <div className="experience-actions">
-            <Button
-              variant="outline"
-              onClick={() =>
-                step === 0 ? navigate("/app/profil") : setStep((currentStep) => currentStep - 1)
-              }
-            >
-              Wstecz
-            </Button>
-            <Button onClick={nextStep}>
-              {step === manualSteps.length - 1 ? "Zapisz w profilu" : "Dalej"}
-            </Button>
-          </div>
+        <div className="experience-accordion" aria-label="Sekcje ankiety o doświadczeniu z AI">
+          {manualSteps.map((section, index) => {
+            const isOpen = step === index;
+            const isCompleted = completedSteps.includes(index);
+            const headingId = `experience-section-heading-${index}`;
+            const panelId = `experience-section-panel-${index}`;
+
+            return (
+              <section
+                className={`experience-accordion-section${isOpen ? " is-open" : ""}${isCompleted ? " is-completed" : ""}`}
+                key={section.title}
+              >
+                <h2 id={headingId}>
+                  <button
+                    ref={(element) => {
+                      sectionButtonRefs.current[index] = element;
+                    }}
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => setStep(index)}
+                  >
+                    <span className="experience-accordion-marker" aria-hidden="true">
+                      {isCompleted ? <Check /> : index + 1}
+                    </span>
+                    <span className="experience-accordion-heading">
+                      <span>{section.title}</span>
+                      <small>{section.description}</small>
+                    </span>
+                    <ChevronDown className="experience-accordion-chevron" aria-hidden="true" />
+                  </button>
+                </h2>
+                {isOpen && (
+                  <div
+                    id={panelId}
+                    className="experience-accordion-panel"
+                    role="region"
+                    aria-labelledby={headingId}
+                  >
+                    <StepFields step={index} draft={draft} errors={errors} update={update} />
+                    <div className="experience-actions">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (index === 0) navigate("/app/profil");
+                          else {
+                            const previous = index - 1;
+                            setStep(previous);
+                            window.requestAnimationFrame(() =>
+                              sectionButtonRefs.current[previous]?.focus(),
+                            );
+                          }
+                        }}
+                      >
+                        Wstecz
+                      </Button>
+                      <Button onClick={nextStep}>
+                        {index === manualSteps.length - 1 ? "Zapisz w profilu" : "Dalej"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </div>
       </section>
     );

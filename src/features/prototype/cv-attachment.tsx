@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Eye, FileText, Trash2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import people from "./data/people.json" with { type: "json" };
 
 // These scenario assets are immutable; revisions require new versioned files.
@@ -39,24 +47,63 @@ export function ProfileCvAttachment({
 
   if (!preparedPdf)
     return (
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <div className="profile-cv-attachment">
+          <div className="profile-cv-file-row">
+            <span className="profile-cv-file-icon">
+              <FileText aria-hidden="true" />
+            </span>
+            <div className="profile-cv-file-description">
+              <strong>Zapisana treść CV</strong>
+              <span>CV z profilu</span>
+            </div>
+            <div className="profile-cv-file-actions">
+              <DialogTrigger render={<Button variant="ghost" size="sm" />}>
+                <Eye aria-hidden="true" /> Podgląd
+              </DialogTrigger>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Usuń załączone CV"
+                onClick={() => {
+                  setPreviewOpen(false);
+                  onRemove();
+                }}
+              >
+                <Trash2 aria-hidden="true" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        <DialogContent className="profile-cv-preview-dialog">
+          <DialogHeader>
+            <DialogTitle>Podgląd CV</DialogTitle>
+            <DialogDescription>Zapisana treść CV z profilu</DialogDescription>
+          </DialogHeader>
+          <p className="profile-cv-text-preview">{fallbackText}</p>
+        </DialogContent>
+      </Dialog>
+    );
+
+  const href = `${import.meta.env.BASE_URL}cv/${filename}`;
+  return (
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
       <div className="profile-cv-attachment">
         <div className="profile-cv-file-row">
           <span className="profile-cv-file-icon">
             <FileText aria-hidden="true" />
           </span>
           <div className="profile-cv-file-description">
-            <strong>Zapisana treść CV</strong>
-            <span>CV z profilu</span>
+            <a href={href} target="_blank" rel="noopener noreferrer">
+              {filename}
+              <span className="sr-only"> — otwórz w nowej karcie</span>
+            </a>
+            <span>PDF · dodano 14 listopada 2026</span>
           </div>
           <div className="profile-cv-file-actions">
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-expanded={previewOpen}
-              onClick={() => setPreviewOpen((current) => !current)}
-            >
-              <Eye aria-hidden="true" /> {previewOpen ? "Ukryj podgląd" : "Podgląd"}
-            </Button>
+            <DialogTrigger render={<Button variant="ghost" size="sm" />}>
+              <Eye aria-hidden="true" /> Podgląd
+            </DialogTrigger>
             <Button
               variant="ghost"
               size="icon-sm"
@@ -70,56 +117,19 @@ export function ProfileCvAttachment({
             </Button>
           </div>
         </div>
-        {previewOpen && <p className="profile-cv-text-preview">{fallbackText}</p>}
       </div>
-    );
-
-  const href = `${import.meta.env.BASE_URL}cv/${filename}`;
-  return (
-    <div className="profile-cv-attachment">
-      <div className="profile-cv-file-row">
-        <span className="profile-cv-file-icon">
-          <FileText aria-hidden="true" />
-        </span>
-        <div className="profile-cv-file-description">
-          <a href={href} target="_blank" rel="noopener noreferrer">
-            {filename}
-            <span className="sr-only"> — otwórz w nowej karcie</span>
-          </a>
-          <span>PDF · dodano 14 listopada 2026</span>
-        </div>
-        <div className="profile-cv-file-actions">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-expanded={previewOpen}
-            aria-controls="profile-cv-preview"
-            onClick={() => setPreviewOpen((current) => !current)}
-          >
-            <Eye aria-hidden="true" /> {previewOpen ? "Ukryj podgląd" : "Podgląd"}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Usuń załączone CV"
-            onClick={() => {
-              setPreviewOpen(false);
-              onRemove();
-            }}
-          >
-            <Trash2 aria-hidden="true" />
-          </Button>
-        </div>
-      </div>
-      {previewOpen && (
+      <DialogContent className="profile-cv-preview-dialog">
+        <DialogHeader>
+          <DialogTitle>Podgląd CV</DialogTitle>
+          <DialogDescription>{filename}</DialogDescription>
+        </DialogHeader>
         <iframe
-          id="profile-cv-preview"
-          className="cv-preview profile-cv-preview"
+          className="profile-cv-preview-frame"
           title="Podgląd CV (PDF)"
           src={`${href}#view=FitH`}
         />
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

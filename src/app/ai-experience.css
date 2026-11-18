@@ -109,13 +109,34 @@
 .profile-cv-file-actions [aria-label="Usuń załączone CV"] {
   color: var(--gui-error);
 }
-.profile-cv-preview {
-  height: clamp(340px, 58vh, 620px);
-  margin-top: 14px;
+.profile-cv-preview-dialog {
+  width: min(1100px, calc(100vw - 32px));
+  max-width: min(1100px, calc(100vw - 32px)) !important;
+  height: min(900px, calc(100vh - 48px));
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 20px;
+  border: 1px solid var(--gui-text);
+  border-radius: 20px;
+}
+.profile-cv-preview-dialog [data-slot="dialog-title"] {
+  padding-right: 42px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+}
+.profile-cv-preview-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--gui-edge);
+  border-radius: 12px;
+  background: var(--gui-surface-muted);
 }
 .profile-cv-text-preview {
-  margin-top: 14px;
+  min-height: 0;
+  margin: 0;
   padding: 18px;
+  overflow: auto;
   border: 1px solid var(--gui-edge);
   border-radius: 14px;
   background: var(--gui-surface-muted);
@@ -326,6 +347,91 @@ progress::-moz-progress-bar {
   margin-top: 8px;
   line-height: 1.6;
 }
+.experience-accordion {
+  overflow: hidden;
+  border: 1px solid var(--gui-text);
+  border-radius: 22px;
+  background: #fff;
+}
+.experience-accordion-section + .experience-accordion-section {
+  border-top: 1px solid #d8d5d1;
+}
+.experience-accordion-section > h2 {
+  margin: 0;
+}
+.experience-accordion-section > h2 > button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 0;
+  background: #fff;
+  color: var(--gui-text);
+  text-align: left;
+  cursor: pointer;
+}
+.experience-accordion-section > h2 > button:hover {
+  background: var(--gui-color-1-transparent);
+}
+.experience-accordion-section > h2 > button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--gui-focus);
+  outline-offset: -3px;
+}
+.experience-accordion-section.is-open > h2 > button {
+  background: var(--gui-color-1-transparent);
+}
+.experience-accordion-marker {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gui-text);
+  border-radius: 999px;
+  background: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+.experience-accordion-section.is-completed .experience-accordion-marker {
+  background: var(--gui-text);
+  color: #fff;
+}
+.experience-accordion-marker svg {
+  width: 17px;
+  height: 17px;
+}
+.experience-accordion-heading {
+  display: grid;
+  gap: 4px;
+}
+.experience-accordion-heading > span {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.experience-accordion-heading small {
+  color: var(--gui-text-muted-accessible);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+.experience-accordion-chevron {
+  width: 20px;
+  transition: transform var(--gui-motion-small);
+}
+.experience-accordion-section.is-open .experience-accordion-chevron {
+  transform: rotate(180deg);
+}
+.experience-accordion-panel {
+  padding: 0 24px 26px 74px;
+}
 .experience-field,
 .experience-radio-group,
 .experience-attachment {
@@ -429,6 +535,30 @@ progress::-moz-progress-bar {
   .experience-form-card {
     padding: 20px;
     border-radius: 18px;
+  }
+  .experience-accordion {
+    border-radius: 18px;
+  }
+  .experience-accordion-section > h2 > button {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 16px;
+  }
+  .experience-accordion-heading > span {
+    font-size: 21px;
+  }
+  .experience-accordion-heading small {
+    font-size: 12px;
+  }
+  .experience-accordion-panel {
+    padding: 0 16px 22px;
+  }
+  .profile-cv-preview-dialog {
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px) !important;
+    height: calc(100vh - 20px);
+    padding: 14px;
+    border-radius: 16px;
   }
   .profile-ai-empty > header {
     grid-template-columns: 1fr;
