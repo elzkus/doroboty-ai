@@ -32,32 +32,42 @@ for (const [name, filename] of [
     });
     await choose(page, name);
     await page.goto("/#/app/profil");
-    const downloadLink = page.getByRole("link", { name: "Pobierz CV (PDF)", exact: true });
-    const href = await downloadLink.getAttribute("href");
+    const profileCvLink = page.getByRole("link", { name: new RegExp(filename) });
+    const href = await profileCvLink.getAttribute("href");
     const response = await page.request.get(href!);
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain("application/pdf");
     const bytes = await response.body();
     expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
+    await page.getByRole("link", { name: "Edytuj profil", exact: true }).click();
+    await page.getByLabel("Imię i nazwisko").fill(`Zmieniony profil ${name}`);
+    await page.getByRole("button", { name: "Zapisz profil", exact: true }).click();
+    await page.getByRole("link", { name: "Wróć do profilu", exact: true }).click();
+    await page.reload();
+    await expect(profileCvLink).toHaveAttribute("href", href!);
+    await expect(page.getByRole("link", { name: "Pobierz CV (PDF)", exact: true })).toHaveCount(0);
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(profileCvLink).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.getByRole("button", { name: "Podgląd", exact: true }).click();
+    await expect(page.locator("iframe[title='Podgląd CV (PDF)']")).toBeVisible();
+    await page.getByRole("button", { name: "Usuń załączone CV", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText("Załącznik został usunięty.");
+    await page.getByRole("button", { name: "Cofnij", exact: true }).click();
+    await expect(profileCvLink).toBeVisible();
+    await page.screenshot({ path: `artifacts/${filename}-mobile.png`, fullPage: true });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto("/#/aplikuj/ai-operations-specialist");
+    const downloadLink = page.getByRole("link", { name: "Pobierz CV (PDF)", exact: true });
+    await expect(downloadLink).toHaveAttribute("href", href!);
     const downloaded = page.waitForEvent("download");
     await downloadLink.focus();
     await page.keyboard.press("Enter");
     const download = await downloaded;
     expect(download.suggestedFilename()).toBe(filename);
     expect(await readFile((await download.path())!)).toEqual(bytes);
-    await page.getByLabel("Imię i nazwisko").fill(`Zmieniony profil ${name}`);
-    await page.getByRole("button", { name: "Zapisz profil", exact: true }).click();
-    await page.reload();
-    await expect(downloadLink).toHaveAttribute("href", href!);
-    await page.setViewportSize({ width: 375, height: 812 });
-    await expect(downloadLink).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-      true,
-    );
-    await page.screenshot({ path: `artifacts/${filename}-mobile.png`, fullPage: true });
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto("/#/aplikuj/ai-operations-specialist");
-    await expect(downloadLink).toHaveAttribute("href", href!);
     await expect(page.getByRole("link", { name: "Otwórz CV (PDF)", exact: false })).toHaveAttribute(
       "target",
       "_blank",
@@ -181,6 +191,7 @@ test("candidate withdrawal is confirmed and terminal", async ({ page }) => {
 test("profile changes do not rewrite a submitted application snapshot", async ({ page }) => {
   await application(page);
   await page.goto("/#/app/profil");
+  await page.getByRole("link", { name: "Edytuj profil", exact: true }).click();
   await page.getByLabel("Imię i nazwisko").fill("Nowa Anna");
   await page.getByRole("button", { name: "Zapisz profil", exact: true }).click();
   await page.goto("/#/app/aplikacje");
@@ -249,6 +260,7 @@ test("storage denial keeps the app usable and offers export", async ({ page }) =
   await choose(page, "Anna Kowalska");
   await expect(page.getByRole("status")).toContainText("Wyeksportuj");
   await page.goto("/#/app/profil");
+  await page.getByRole("link", { name: "Edytuj profil", exact: true }).click();
   await expect(page.getByLabel("Imię i nazwisko")).toHaveValue("Anna Kowalska");
 });
 test("map, hash deep links and unknown records work without external requests", async ({
@@ -280,7 +292,7 @@ test("mobile navigation, light-only appearance and keyboard person selection", a
   await page.keyboard.press("Enter");
   await page.getByRole("button", { name: "Otwórz menu" }).click();
   await page.getByRole("link", { name: "Profil", exact: true }).click();
-  await expect(page.getByLabel("Imię i nazwisko")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Doświadczenie w pracy z AI" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "artifacts/profile-mobile.png", fullPage: true });
   await page.getByRole("button", { name: "Otwórz menu" }).click();
@@ -454,6 +466,8 @@ test("legacy dark preference keeps scenario data and renders the light interface
   });
   await page.reload();
   await page.goto("/#/app/profil");
+  await expect(page.locator("main")).toContainText("Zachowaj mój profil");
+  await page.getByRole("link", { name: "Edytuj profil", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "O mnie", exact: true })).toHaveValue(
     "Zachowaj mój profil",
   );
@@ -463,6 +477,139 @@ test("legacy dark preference keeps scenario data and renders the light interface
   expect(
     await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).theme, STORAGE_KEY),
   ).toBeUndefined();
+});
+
+test("candidate completes, saves and edits the session-only AI experience questionnaire", async ({
+  page,
+}) => {
+  await choose(page, "Anna Kowalska");
+  await page.goto("/#/app/profil");
+  await page.getByRole("link", { name: "Wypełnij ankietę", exact: true }).click();
+
+  await page.getByLabel("Jak najlepiej opiszesz swoją rolę lub obszar pracy?").selectOption({
+    label: "Product management",
+  });
+  await page.getByLabel("Jaki przykład chcesz opisać?").fill("Analiza opinii użytkowników");
+  await page.getByLabel("Co chciałaś lub chciałeś osiągnąć?").fill("Skrócić analizę odpowiedzi");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+
+  await page
+    .getByLabel("Jak ta praca lub proces wyglądały wcześniej?")
+    .fill("Zespół analizował odpowiedzi ręcznie.");
+  await page
+    .getByLabel("Co było trudne, czasochłonne albo nieskuteczne?")
+    .fill("Analiza trwała kilka dni.");
+  await page
+    .getByLabel("Kogo dotyczył ten problem?")
+    .fill("Badaczy produktu i zespołu operacyjnego.");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+
+  await page
+    .getByLabel("Za co odpowiadałaś lub odpowiadałeś osobiście?")
+    .fill("Zaprojektowałam proces i kryteria jakości.");
+  await page
+    .getByLabel("Co wykonali inni członkowie zespołu?")
+    .fill("Analityk sprawdził wynik na większym zbiorze.");
+  await page.getByLabel("Opracowaliśmy go wspólnie w zespole").check();
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+
+  await page
+    .getByLabel("W którym miejscu procesu pojawiło się AI?")
+    .fill("We wstępnym grupowaniu wypowiedzi.");
+  await page
+    .getByLabel("Co wykonywało AI, a co nadal wymagało Twojej pracy?")
+    .fill("AI proponowało grupy, a ja poprawiałam przypisania.");
+  await page
+    .getByLabel("Co robiłaś lub robiłeś z wynikiem AI przed jego wykorzystaniem?")
+    .fill("Porównywałam wynik z odpowiedziami źródłowymi.");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+
+  await page
+    .getByLabel("Jaką najważniejszą decyzję podjęłaś lub podjąłeś?")
+    .fill("Nie automatyzować niejednoznacznych podsumowań.");
+  await page
+    .getByLabel("Jak sprawdzano jakość lub poprawność wyniku AI?")
+    .fill("Porównaniem z ręcznym kodowaniem części materiału.");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+
+  await page
+    .getByLabel("Co zmieniło się dzięki temu sposobowi pracy?")
+    .fill("Analiza skróciła się z kilku dni do jednego dnia.");
+  await page.getByLabel("W kilku podobnych sytuacjach").check();
+  await page
+    .getByLabel("Skąd wiesz, że rozwiązanie przyniosło wartość?")
+    .fill("Proces wykorzystano w dwóch kolejnych badaniach.");
+  await page.getByRole("button", { name: "Zapisz w profilu", exact: true }).click();
+
+  await expect(page.getByRole("heading", { name: "Doświadczenie w pracy z AI" })).toBeVisible();
+  await expect(page.locator("main")).toContainText("Analiza opinii użytkowników");
+  await page.getByRole("link", { name: "Edytuj odpowiedzi", exact: true }).click();
+  await expect(page.getByText("Krok 1 z 6", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Jaki przykład chcesz opisać?")).toHaveValue(
+    "Analiza opinii użytkowników",
+  );
+  await page.goto("/#/app/profil");
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Wypełnij ankietę", exact: true })).toBeVisible();
+});
+
+test("candidate can finish the manual AI questionnaire without answering optional questions", async ({
+  page,
+}) => {
+  await choose(page, "Anna Kowalska");
+  await page.goto("/#/app/profil");
+  await page.getByRole("link", { name: "Wypełnij ankietę", exact: true }).click();
+
+  for (let step = 1; step < 6; step += 1) {
+    await expect(page.getByText(`Krok ${step} z 6`, { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  }
+  await expect(page.getByText("Krok 6 z 6", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Zapisz w profilu", exact: true }).click();
+  await expect(page.getByText("0% uzupełnienia informacji", { exact: true })).toBeVisible();
+});
+
+test("candidate completes the shared questionnaire with a simulated portfolio draft", async ({
+  page,
+}) => {
+  await choose(page, "Anna Kowalska");
+  await page.goto("/#/app/profil");
+  await page.getByRole("link", { name: "Dodaj portfolio", exact: true }).click();
+  const portfolioUrl = page.getByLabel("Link do publicznego case study");
+  await portfolioUrl.click();
+  await expect(portfolioUrl).toHaveValue(
+    "https://portfolio.example.com/case-study/ai-feedback-analysis",
+  );
+  const portfolioConsents = page.getByRole("checkbox");
+  await expect(portfolioConsents.nth(0)).toBeChecked();
+  await expect(portfolioConsents.nth(1)).toBeChecked();
+  const prepareDraft = page.getByRole("button", {
+    name: "Przygotuj wersję roboczą",
+    exact: true,
+  });
+  await expect(prepareDraft).toBeEnabled();
+  await prepareDraft.click();
+  await expect(page.getByText("Krok 1 z 6", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Jaki przykład chcesz opisać?")).toHaveValue(
+    "Analiza opinii użytkowników po badaniach produktu",
+  );
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(page.getByLabel("Kogo dotyczył ten problem?")).toHaveValue("");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(page.getByLabel("Co wykonali inni członkowie zespołu?")).toHaveValue("");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(page.getByLabel("Jakich narzędzi lub modeli użyto?")).toHaveValue(
+    /Claude 3.5 Sonnet/,
+  );
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(page.getByLabel("Jakie inne podejście było rozważane?")).toHaveValue(
+    /próby kontrolnej/,
+  );
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await page.getByRole("button", { name: "Zapisz w profilu", exact: true }).click();
+  await expect(page.locator("main")).toContainText(
+    "Analiza opinii użytkowników po badaniach produktu",
+  );
 });
 
 test("Poster People offer keeps desktop conditions/actions and places them before mobile reading", async ({

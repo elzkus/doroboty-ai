@@ -9,11 +9,13 @@ import {
   RequireRole,
   WorkspaceHome,
   ProfilePage,
+  ProfileEditorPage,
   SavedPage,
   ApplyPage,
   ApplicationsPage,
   ApplicationDetail,
 } from "./workspace";
+import { AiExperienceQuestionnairePage } from "./ai-experience-questionnaire";
 import { EmployerJobs, EmployerJobEditor, CompanyEditor } from "./employer";
 import { SettingsPage, PrivacyPage } from "./settings";
 import { CasePage } from "./case";
@@ -54,10 +56,19 @@ function AppRoutes() {
           }
         />
         <Route
-          path="app/profil/podglad"
+          path="app/profil/edytuj"
           element={
             <RequireRole role="candidate">
-              <ProfilePage preview />
+              <ProfileEditorPage />
+            </RequireRole>
+          }
+        />
+        <Route path="app/profil/podglad" element={<Navigate to="/app/profil" replace />} />
+        <Route
+          path="app/profil/doswiadczenie-ai"
+          element={
+            <RequireRole role="candidate">
+              <AiExperienceQuestionnairePage />
             </RequireRole>
           }
         />

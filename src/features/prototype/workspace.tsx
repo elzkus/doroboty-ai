@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router";
-import { CheckCircle2, FileText } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { ConfettiBurst, type ConfettiOrigin } from "@/components/confetti-burst";
 import { BackLink } from "@/components/back-link";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -12,10 +12,11 @@ import { ApplicationOfferPreview } from "@/features/jobs/application-offer-previ
 import { usePrototype } from "./store";
 import { currentPerson, publishedJobs, stageLabels, MIN_APPLICATION_ANSWER_LENGTH } from "./model";
 import { PageTitle, Empty, NotFound, Notice } from "./shell";
-import { CvAttachment } from "./cv-attachment";
+import { CvAttachment, ProfileCvAttachment } from "./cv-attachment";
 import { MatchScore } from "./match-score";
 import { RecruitingApplication } from "./recruiting-application";
 import { CandidateApplication } from "./candidate-application";
+import { AiExperienceProfileSection } from "./ai-experience-questionnaire";
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -139,7 +140,40 @@ export function WorkspaceHome() {
     </>
   );
 }
-export function ProfilePage({ preview = false }: { preview?: boolean }) {
+export function ProfilePage() {
+  const { state, removedProfileCvs, removeProfileCv, restoreProfileCv } = usePrototype();
+  const person = currentPerson(state)!;
+  return (
+    <section className="profile-page">
+      <header className="profile-page-title">
+        <h1>{person.name}</h1>
+      </header>
+      <section className="profile-summary-card" aria-labelledby="profile-headline">
+        <header>
+          <h2 id="profile-headline">{person.headline}</h2>
+          <Link to="/app/profil/edytuj" className={buttonVariants({ variant: "outline" })}>
+            Edytuj profil
+          </Link>
+        </header>
+        <p className="profile-location">{person.location}</p>
+        {person.bio && <p>{person.bio}</p>}
+        <section className="profile-cv-section" aria-labelledby="profile-cv-title">
+          <h3 id="profile-cv-title">Załączone CV</h3>
+          <ProfileCvAttachment
+            candidateId={person.id}
+            fallbackText={person.cv}
+            removed={Boolean(removedProfileCvs[person.id])}
+            onRemove={() => removeProfileCv(person.id)}
+            onRestore={() => restoreProfileCv(person.id)}
+          />
+        </section>
+      </section>
+      <AiExperienceProfileSection />
+    </section>
+  );
+}
+
+export function ProfileEditorPage() {
   const { state, run } = usePrototype();
   const person = currentPerson(state)!;
   const [message, setMessage] = useState("");
@@ -160,51 +194,26 @@ export function ProfilePage({ preview = false }: { preview?: boolean }) {
       setMessage("Profil został zapisany.");
   }
   return (
-    <>
-      <PageTitle
-        action={
-          <Link
-            to={preview ? "/app/profil" : "/app/profil/podglad"}
-            className={buttonVariants({ variant: "outline" })}
-          >
-            {preview ? "Edytuj profil" : "Podgląd profilu"}
-          </Link>
-        }
-      >
-        {preview ? person.name : "Twój profil"}
-      </PageTitle>
-      {preview ? (
-        <div className="prototype-panel space-y-4">
-          <h2>{person.headline}</h2>
-          <p>{person.location}</p>
-          <p>{person.bio}</p>
-        </div>
-      ) : (
-        <form onSubmit={save} className="prototype-panel prototype-form">
-          <Field label="Imię i nazwisko">
-            <Input name="name" required maxLength={200} defaultValue={person.name} />
-          </Field>
-          <Field label="Nagłówek zawodowy">
-            <Input name="headline" required maxLength={200} defaultValue={person.headline} />
-          </Field>
-          <Field label="Lokalizacja">
-            <Input name="location" required maxLength={200} defaultValue={person.location} />
-          </Field>
-          <Field label="O mnie">
-            <Textarea name="bio" maxLength={12000} defaultValue={person.bio} />
-          </Field>
-          <Button type="submit">Zapisz profil</Button>
-          {message && <p role="status">{message}</p>}
-        </form>
-      )}
-      <section className="prototype-panel mt-6">
-        <h2 className="mb-4 flex items-center gap-2">
-          <FileText className="size-5" />
-          CV
-        </h2>
-        <CvAttachment candidateId={person.id} fallbackText={person.cv} />
-      </section>
-    </>
+    <section className="profile-page">
+      <BackLink to="/app/profil">Wróć do profilu</BackLink>
+      <PageTitle>Edytuj profil</PageTitle>
+      <form onSubmit={save} className="prototype-panel prototype-form">
+        <Field label="Imię i nazwisko">
+          <Input name="name" required maxLength={200} defaultValue={person.name} />
+        </Field>
+        <Field label="Nagłówek zawodowy">
+          <Input name="headline" required maxLength={200} defaultValue={person.headline} />
+        </Field>
+        <Field label="Lokalizacja">
+          <Input name="location" required maxLength={200} defaultValue={person.location} />
+        </Field>
+        <Field label="O mnie">
+          <Textarea name="bio" maxLength={12000} defaultValue={person.bio} />
+        </Field>
+        <Button type="submit">Zapisz profil</Button>
+        {message && <p role="status">{message}</p>}
+      </form>
+    </section>
   );
 }
 export function SavedPage() {

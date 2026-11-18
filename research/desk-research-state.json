@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.1.0",
+  "skill": "desk-research",
+  "created_at": "2026-11-17",
+  "last_updated_at": "2026-11-17",
+  "current_stage": "complete",
+  "project": {
+    "name": "DoRoboty.ai",
+    "path": "/Users/elzbieta.kus/Documents/Lokalne projekty/AI product hero/DoRoboty-ai",
+    "industry_or_domain": "job marketplace prototype for AI roles",
+    "ingested_files": {
+      "brief": [],
+      "research": ["research/2026-11-17-desk-apply-survey.md", "research/2026-11-17-desk-apply-survey-evidence.md"],
+      "analyses": [],
+      "ost_state": null
+    }
+  },
+  "brief": {
+    "problem_statement": "Design a survey for the Apply role based on current AI job requirements and candidate/recruiter needs.",
+    "working_hypothesis": "The current CV and short-answer application flow may not capture the evidence requested for AI-native roles.",
+    "decision_at_stake": "Which application fields or guidance to test next.",
+    "research_questions": [
+      {"id": 1, "question": "What evidence do current AI Apply roles ask candidates to provide?", "auto_decided": true},
+      {"id": 2, "question": "Which survey questions identify gaps for candidates and screeners?", "auto_decided": true}
+    ],
+    "scale": "quick",
+    "scale_auto_decided": true,
+    "disconfirmation_criterion": "If candidates and recruiters do not name the same missing evidence, do not add a new mandatory application field.",
+    "disconfirmation_skipped": false,
+    "population_or_setting": "Polish AI/UX/product job seekers and first-screening recruiters.",
+    "conversation_language": "pl"
+  },
+  "queries": {"competitive": {"companies_to_investigate": ["Dobry Plan", "MasterBorn", "Upvanta"], "search_keywords": ["AI-native product designer", "AI product owner"], "recency_window_years": 1, "source_heuristics": "User-provided live job links."}, "scholar": {"term_mappings": [{"user_language": "doświadczenie kandydatów i rekruterów", "academic_language": ["candidate experience", "recruiter screening"]}], "search_queries": [], "recency_window_years": 10, "include_preprints": true}, "user_edits": []},
+  "dispatch": {"competitive_subagent": {"status": "not used", "started_at": null, "completed_at": null, "output_path": null, "summary": "Primary job listings read directly.", "findings_count": 4, "disconfirming_count": 0, "queries_run": 0, "web_operations": 6}, "scholar_subagent": {"status": "blocked", "started_at": null, "completed_at": null, "output_path": null, "summary": "Live web search returned no results in this session.", "findings_count": 0, "disconfirming_count": 0, "fallback_to_general_search": true, "queries_run": 2, "web_operations": 2}},
+  "synthesis": {"answers_per_question": ["Current listings ask for inspectable evidence of AI-assisted work, adapted to seniority.", "The survey tests whether the application captures that evidence and supports rapid screening."], "cross_source_contradictions": [], "conditions_supported": ["portfolio/artefact", "process and outcome", "seniority-specific evidence"], "conditions_unresolved": ["frequency on the full market", "candidate and recruiter prevalence"], "strongest_challenge": "The reviewed offers are not a representative sample.", "decision_implication": "Test guidance and optional structured evidence before adding mandatory fields."},
+  "report": {"path": "research/2026-11-17-desk-apply-survey.md", "disposition": "completed", "tldr_one_liner": "Survey candidates and screeners about missing evidence of real AI work, especially portfolio, outcome and production context.", "completed_at": "2026-11-17", "evidence_path": "research/2026-11-17-desk-apply-survey-evidence.md", "word_count": 607},
+  "iterations": []
+}

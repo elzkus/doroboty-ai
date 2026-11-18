@@ -1,5 +1,6 @@
-import { FileText } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { useState } from "react";
+import { Eye, FileText, Trash2 } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import people from "./data/people.json" with { type: "json" };
 
 // These scenario assets are immutable; revisions require new versioned files.
@@ -7,6 +8,120 @@ const candidateFiles = new Map([
   ["candidate-anna", "anna-kowalska-cv-v1.pdf"],
   ["candidate-marek", "marek-nowak-cv-v1.pdf"],
 ]);
+
+export function ProfileCvAttachment({
+  candidateId,
+  fallbackText,
+  removed,
+  onRemove,
+  onRestore,
+}: {
+  candidateId: string;
+  fallbackText: string;
+  removed: boolean;
+  onRemove: () => void;
+  onRestore: () => void;
+}) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const filename = candidateFiles.get(candidateId);
+  const source = people.find((person) => person.id === candidateId);
+  const preparedPdf = filename && source?.cv === fallbackText;
+
+  if (removed)
+    return (
+      <div className="profile-cv-removed" role="status">
+        <span>Załącznik został usunięty.</span>
+        <Button variant="ghost" size="xs" onClick={onRestore}>
+          Cofnij
+        </Button>
+      </div>
+    );
+
+  if (!preparedPdf)
+    return (
+      <div className="profile-cv-attachment">
+        <div className="profile-cv-file-row">
+          <span className="profile-cv-file-icon">
+            <FileText aria-hidden="true" />
+          </span>
+          <div className="profile-cv-file-description">
+            <strong>Zapisana treść CV</strong>
+            <span>CV z profilu</span>
+          </div>
+          <div className="profile-cv-file-actions">
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-expanded={previewOpen}
+              onClick={() => setPreviewOpen((current) => !current)}
+            >
+              <Eye aria-hidden="true" /> {previewOpen ? "Ukryj podgląd" : "Podgląd"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Usuń załączone CV"
+              onClick={() => {
+                setPreviewOpen(false);
+                onRemove();
+              }}
+            >
+              <Trash2 aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+        {previewOpen && <p className="profile-cv-text-preview">{fallbackText}</p>}
+      </div>
+    );
+
+  const href = `${import.meta.env.BASE_URL}cv/${filename}`;
+  return (
+    <div className="profile-cv-attachment">
+      <div className="profile-cv-file-row">
+        <span className="profile-cv-file-icon">
+          <FileText aria-hidden="true" />
+        </span>
+        <div className="profile-cv-file-description">
+          <a href={href} target="_blank" rel="noopener noreferrer">
+            {filename}
+            <span className="sr-only"> — otwórz w nowej karcie</span>
+          </a>
+          <span>PDF · dodano 14 listopada 2026</span>
+        </div>
+        <div className="profile-cv-file-actions">
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-expanded={previewOpen}
+            aria-controls="profile-cv-preview"
+            onClick={() => setPreviewOpen((current) => !current)}
+          >
+            <Eye aria-hidden="true" /> {previewOpen ? "Ukryj podgląd" : "Podgląd"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Usuń załączone CV"
+            onClick={() => {
+              setPreviewOpen(false);
+              onRemove();
+            }}
+          >
+            <Trash2 aria-hidden="true" />
+          </Button>
+        </div>
+      </div>
+      {previewOpen && (
+        <iframe
+          id="profile-cv-preview"
+          className="cv-preview profile-cv-preview"
+          title="Podgląd CV (PDF)"
+          src={`${href}#view=FitH`}
+        />
+      )}
+    </div>
+  );
+}
 
 export function CvAttachment({
   candidateId,

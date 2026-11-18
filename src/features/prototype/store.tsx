@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { initialState, transition, type Action, type State } from "./model";
 import { parseState, readState, saveState, type StoragePort } from "./storage";
+import { aiExperienceSchema, type AiExperience } from "./ai-experience";
 function browserStorage(): StoragePort | null {
   try {
     return window.localStorage;
@@ -14,6 +15,8 @@ function useStore() {
   const [issue, setIssue] = useState(loaded.issue);
   const [error, setError] = useState("");
   const [blocked, setBlocked] = useState(loaded.blocked);
+  const [aiExperiences, setAiExperiences] = useState<Record<string, AiExperience>>({});
+  const [removedProfileCvs, setRemovedProfileCvs] = useState<Record<string, boolean>>({});
   const latest = useRef(state);
   function commit(next: State, replace = false) {
     latest.current = next;
@@ -45,6 +48,8 @@ function useStore() {
     try {
       const next = parseState(raw);
       commit(next, true);
+      setAiExperiences({});
+      setRemovedProfileCvs({});
       return true;
     } catch (e) {
       setError((e as Error).message);
@@ -54,16 +59,51 @@ function useStore() {
   useEffect(() => {
     document.documentElement.classList.remove("dark");
   }, []);
+  function saveAiExperience(value: AiExperience) {
+    try {
+      const person = latest.current.people.find(
+        (item) => item.id === latest.current.activePersonId,
+      );
+      if (person?.role !== "candidate") throw new Error("Wybierz profil kandydata.");
+      const parsed = aiExperienceSchema.parse(value);
+      setAiExperiences((current) => ({ ...current, [person.id]: parsed }));
+      setError("");
+      return true;
+    } catch (e) {
+      setError(
+        e instanceof Error && e.name !== "ZodError"
+          ? e.message
+          : "Sprawdź poprawność i długość odpowiedzi.",
+      );
+      return false;
+    }
+  }
+  function reset() {
+    setAiExperiences({});
+    setRemovedProfileCvs({});
+    commit(initialState(), true);
+  }
   return {
     state,
     issue,
     error,
     blocked,
     original: loaded.original,
+    aiExperiences,
+    removedProfileCvs,
+    saveAiExperience,
+    removeProfileCv: (candidateId: string) =>
+      setRemovedProfileCvs((current) => ({ ...current, [candidateId]: true })),
+    restoreProfileCv: (candidateId: string) =>
+      setRemovedProfileCvs((current) => {
+        const next = { ...current };
+        delete next[candidateId];
+        return next;
+      }),
     run,
     importState,
     clearError: () => setError(""),
-    reset: () => commit(initialState(), true),
+    reset,
   };
 }
 type Store = ReturnType<typeof useStore>;
