@@ -7,7 +7,6 @@ import { BackLink } from "@/components/back-link";
 import { ResponsivePanel } from "@/components/responsive-panel";
 import { SalaryFact } from "@/features/jobs/salary-fact";
 import { functionLabels } from "@/features/jobs/presentation";
-import peopleArt from "../../../docs/design-system/agent-kit/assets/people.png";
 import { CompanyLogo } from "@/features/jobs/company-logo";
 import { JobCard } from "@/features/jobs/job-card";
 import { JobFiltersForm } from "@/features/jobs/job-filters";
@@ -155,22 +154,13 @@ export function JobsPage() {
         <div className="pp-container">
           <div className="pp-intro-grid">
             <div className="pp-intro-copy">
-              <h1>
-                Dobra robota.
-                <br />
-                <span>Z AI w środku.</span>
-              </h1>
+              <span className="pp-intro-eyebrow">Aktualne role w sztucznej inteligencji</span>
+              <h1>Znajdź swoją pracę w AI.</h1>
               <p>
-                Dla ludzi, którzy tworzą, wdrażają i rozwijają AI.
-                <br />
-                Znajdź rolę, w której zrobisz coś dobrego.
+                Przejrzyste widełki, konkretne technologie i firmy, które naprawdę budują produkty
+                AI.
               </p>
             </div>
-            <img
-              className="pp-people-art"
-              src={peopleArt}
-              alt="Dwie osoby pracujące razem z laptopem"
-            />
           </div>
           <form
             key={`${filters.query ?? ""}:${filters.location ?? ""}`}
@@ -252,9 +242,11 @@ export function JobsPage() {
           <div className="pp-results-heading">
             <div className="pp-results-title">
               <h2 ref={resultsHeading} tabIndex={-1}>
-                Oferty pracy
+                {jobs.length} {jobs.length === 1 ? "oferta" : "ofert"} dopasowanych do filtrów
               </h2>
-              <span role="status">{jobs.length}</span>
+              <span className="sr-only" role="status">
+                {jobs.length} wyników
+              </span>
             </div>
             <div className="pp-results-controls">
               <span className="pp-sort-label">Najnowsze</span>
@@ -480,7 +472,6 @@ export function JobPage() {
                 Oferty tej firmy <ArrowRight />
               </Link>
             </div>
-            <img src={peopleArt} alt="" />
           </div>
         </section>
       </div>

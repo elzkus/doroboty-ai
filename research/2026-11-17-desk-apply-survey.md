@@ -6,12 +6,12 @@ Proponuję dwie krótkie ankiety: dla kandydatów po wysłaniu aplikacji i dla r
 
 ## Co wynika z ofert
 
-| Wzorzec | Co powinno ujawnić badanie |
-| --- | --- |
-| Portfolio i działający prototyp są ważniejsze niż sama lista narzędzi. | Czy kandydat wie, jaki link lub przykład dodać, i czy rekruter umie go szybko ocenić. |
-| AI służy do iteracji, badań i prototypowania, nie jest samodzielną kwalifikacją. | Czy formularz pozwala opisać problem, użycie AI, wynik i granice automatyzacji. |
-| Role senior wymagają skali, bezpieczeństwa, governance i współpracy między zespołami. | Czy dla tej grupy brakuje miejsca na kontekst wdrożenia produkcyjnego. |
-| Stażowe role dopuszczają eksperymenty niekomercyjne, ale wymagają pokazania efektu. | Czy kandydaci o mniejszym doświadczeniu nie odpadają przez wymaganie wyłącznie komercyjnego CV. |
+| Wzorzec                                                                               | Co powinno ujawnić badanie                                                                      |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Portfolio i działający prototyp są ważniejsze niż sama lista narzędzi.                | Czy kandydat wie, jaki link lub przykład dodać, i czy rekruter umie go szybko ocenić.           |
+| AI służy do iteracji, badań i prototypowania, nie jest samodzielną kwalifikacją.      | Czy formularz pozwala opisać problem, użycie AI, wynik i granice automatyzacji.                 |
+| Role senior wymagają skali, bezpieczeństwa, governance i współpracy między zespołami. | Czy dla tej grupy brakuje miejsca na kontekst wdrożenia produkcyjnego.                          |
+| Stażowe role dopuszczają eksperymenty niekomercyjne, ale wymagają pokazania efektu.   | Czy kandydaci o mniejszym doświadczeniu nie odpadają przez wymaganie wyłącznie komercyjnego CV. |
 
 ## Proponowana ankieta dla kandydata
 

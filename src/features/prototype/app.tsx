@@ -1,24 +1,65 @@
+import { lazy } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router";
 import { PrototypeProvider } from "./store";
 import { Shell, NotFound } from "./shell";
-import HomePage from "./home";
-import MethodologyPage from "./methodology";
-import { JobsPage, JobPage, CompanyPage } from "./marketplace";
-import {
-  PersonPicker,
-  RequireRole,
-  WorkspaceHome,
-  ProfilePage,
-  ProfileEditorPage,
-  SavedPage,
-  ApplyPage,
-  ApplicationsPage,
-  ApplicationDetail,
-} from "./workspace";
-import { AiExperienceQuestionnairePage } from "./ai-experience-questionnaire";
-import { EmployerJobs, EmployerJobEditor, CompanyEditor } from "./employer";
-import { SettingsPage, PrivacyPage } from "./settings";
-import { CasePage } from "./case";
+
+const HomePage = lazy(() => import("./home"));
+const MethodologyPage = lazy(() => import("./methodology"));
+const JobsPage = lazy(() =>
+  import("./marketplace").then((module) => ({ default: module.JobsPage })),
+);
+const JobPage = lazy(() => import("./marketplace").then((module) => ({ default: module.JobPage })));
+const CompanyPage = lazy(() =>
+  import("./marketplace").then((module) => ({ default: module.CompanyPage })),
+);
+const PersonPicker = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.PersonPicker })),
+);
+const RequireRole = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.RequireRole })),
+);
+const WorkspaceHome = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.WorkspaceHome })),
+);
+const ProfilePage = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.ProfilePage })),
+);
+const ProfileEditorPage = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.ProfileEditorPage })),
+);
+const SavedPage = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.SavedPage })),
+);
+const ApplyPage = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.ApplyPage })),
+);
+const ApplicationsPage = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.ApplicationsPage })),
+);
+const ApplicationDetail = lazy(() =>
+  import("./workspace").then((module) => ({ default: module.ApplicationDetail })),
+);
+const AiExperienceQuestionnairePage = lazy(() =>
+  import("./ai-experience-questionnaire").then((module) => ({
+    default: module.AiExperienceQuestionnairePage,
+  })),
+);
+const EmployerJobs = lazy(() =>
+  import("./employer").then((module) => ({ default: module.EmployerJobs })),
+);
+const EmployerJobEditor = lazy(() =>
+  import("./employer").then((module) => ({ default: module.EmployerJobEditor })),
+);
+const CompanyEditor = lazy(() =>
+  import("./employer").then((module) => ({ default: module.CompanyEditor })),
+);
+const SettingsPage = lazy(() =>
+  import("./settings").then((module) => ({ default: module.SettingsPage })),
+);
+const PrivacyPage = lazy(() =>
+  import("./settings").then((module) => ({ default: module.PrivacyPage })),
+);
+const CasePage = lazy(() => import("./case").then((module) => ({ default: module.CasePage })));
 function AppRoutes() {
   return (
     <Routes>

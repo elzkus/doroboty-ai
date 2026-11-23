@@ -278,3 +278,182 @@
   --color-success: var(--gui-success);
   --color-success-bg: var(--gui-success-transparent);
 }
+
+/* Navy Signal semantic bridge. Legacy token names remain for component compatibility. */
+:root {
+  --dr-navy-950: #06152d;
+  --dr-navy-900: #0b2142;
+  --dr-navy-800: #12315e;
+  --dr-blue-600: #2d66f5;
+  --dr-blue-700: #1f51d0;
+  --dr-yellow-500: #f7bd37;
+  --dr-canvas: #f4f7fc;
+  --dr-surface: #ffffff;
+  --dr-ink: #0b1c36;
+  --dr-muted: #60708a;
+  --dr-line: #dbe3f0;
+  --dr-success: #16864d;
+  --dr-warning-ink: #765400;
+  --dr-font-sans: "Arial", "Helvetica Neue", system-ui, sans-serif;
+  --dr-font-mono: "SFMono-Regular", Consolas, monospace;
+  --dr-space-1: 4px;
+  --dr-space-2: 8px;
+  --dr-space-3: 12px;
+  --dr-space-4: 16px;
+  --dr-space-6: 24px;
+  --dr-space-8: 32px;
+  --dr-space-12: 48px;
+  --dr-space-16: 64px;
+  --dr-space-24: 96px;
+  --dr-control-height: 44px;
+  --dr-control-height-large: 52px;
+  --dr-control-padding-x: 16px;
+  --dr-control-icon-zone: 44px;
+  --dr-icon-size: 20px;
+  --dr-radius-control: 9px;
+  --dr-radius-card: 14px;
+  --dr-radius-panel: 16px;
+  --dr-content-max: 1280px;
+  --dr-reading-max: 720px;
+  --dr-shadow-raised: 0 18px 42px rgba(18, 43, 82, 0.1);
+  --dr-focus-ring: 0 0 0 3px rgba(45, 102, 245, 0.28);
+
+  --theme-name: "Navy Signal";
+  --gui-font-brand: var(--dr-font-sans);
+  --gui-font-ui: var(--dr-font-sans);
+  --gui-font-editorial: var(--dr-font-sans);
+  --gui-font-data: var(--dr-font-mono);
+  --font-body: var(--dr-font-sans);
+  --font-display: var(--dr-font-sans);
+  --font-interface: var(--dr-font-sans);
+  --font-code: var(--dr-font-mono);
+  --weight-brand-regular: 600;
+  --weight-brand-medium: 650;
+  --weight-brand-heavy: 700;
+
+  --gui-space-xxs: 4px;
+  --gui-space-xs: 8px;
+  --gui-space-s: 12px;
+  --gui-space-m: 16px;
+  --gui-space-l: 24px;
+  --gui-space-xl: 32px;
+  --gui-space-xxl: 48px;
+  --gui-text-xxs: 12px;
+  --gui-leading-xxs: 16px;
+  --gui-text-xs: 14px;
+  --gui-leading-xs: 20px;
+  --gui-text-s: 16px;
+  --gui-leading-s: 24px;
+  --gui-text-m: 18px;
+  --gui-leading-m: 28px;
+  --gui-text-l: 24px;
+  --gui-leading-l: 32px;
+  --gui-text-xl: 36px;
+  --gui-leading-xl: 42px;
+  --gui-text-xxl: 52px;
+  --gui-leading-xxl: 56px;
+  --gui-tracking-xs: -0.04em;
+  --gui-tracking-s: -0.02em;
+  --gui-tracking-m: -0.01em;
+  --gui-tracking-l: 0;
+  --gui-tracking-xl: 0.08em;
+
+  --gui-radius-xs: 6px;
+  --gui-radius-s: var(--dr-radius-control);
+  --gui-radius-m: var(--dr-radius-card);
+  --gui-radius-l: var(--dr-radius-panel);
+  --gui-radius-xl: 20px;
+
+  --gui-neutral-1: #ffffff;
+  --gui-neutral-2: #ffffff;
+  --gui-neutral-3: #eef3fb;
+  --gui-neutral-4: #dbe3f0;
+  --gui-neutral-5: #c6d2e4;
+  --gui-neutral-6: #8b9ab2;
+  --gui-neutral-7: #60708a;
+  --gui-neutral-8: #43536d;
+  --gui-neutral-9: #12315e;
+  --gui-neutral-10: var(--dr-ink);
+  --gui-color-1: var(--dr-blue-600);
+  --gui-color-2: var(--dr-navy-950);
+  --gui-color-3: var(--dr-yellow-500);
+  --gui-color-4: #eaf0ff;
+  --gui-color-1-transparent: #eaf0ff;
+  --gui-color-2-transparent: rgba(6, 21, 45, 0.16);
+  --gui-color-3-transparent: #fff5d8;
+  --gui-success: var(--dr-success);
+  --gui-warning: var(--dr-yellow-500);
+  --gui-warning-transparent: #fff5d8;
+  --gui-error: #c8324b;
+  --gui-error-transparent: #fff0f3;
+  --gui-backdrop: rgba(6, 21, 45, 0.72);
+  --gui-canvas: var(--dr-canvas);
+  --gui-surface: var(--dr-surface);
+  --gui-surface-muted: #eef3fb;
+  --gui-text: var(--dr-ink);
+  --gui-text-muted: var(--dr-muted);
+  --gui-text-muted-accessible: #52627c;
+  --gui-edge: var(--dr-line);
+  --gui-accent: var(--dr-blue-600);
+  --gui-accent-text: #ffffff;
+  --gui-accent-text-accessible: #ffffff;
+  --gui-focus: var(--dr-blue-600);
+  --gui-link: var(--dr-blue-600);
+  --gui-control: #ffffff;
+  --gui-control-hover: #f7f9fd;
+  --gui-control-disabled: #e9eef6;
+  --gui-control-readonly: #f4f7fc;
+
+  --gui-shadow-s: 0 6px 18px rgba(18, 43, 82, 0.06);
+  --gui-shadow-m: var(--dr-shadow-raised);
+  --gui-shadow-l: 0 24px 64px rgba(6, 21, 45, 0.18);
+  --gui-edge-shadow: inset 0 0 0 1px var(--dr-line);
+  --gui-divider-top-shadow: inset 0 1px var(--dr-line);
+  --gui-divider-bottom-shadow: inset 0 -1px var(--dr-line);
+  --gui-divider-inline-end-shadow: inset -1px 0 rgba(255, 255, 255, 0.1);
+  --gui-control-shadow: inset 0 0 0 1px var(--dr-line);
+  --gui-control-focus-shadow: var(--dr-focus-ring);
+  --gui-accent-bar-shadow: inset 4px 0 var(--dr-blue-600);
+  --gui-motion-small: 160ms ease;
+  --gui-motion-large: 220ms ease;
+  --motion-duration: 160ms;
+  --motion-large-duration: 220ms;
+
+  --background: var(--dr-canvas);
+  --foreground: var(--dr-ink);
+  --card: var(--dr-surface);
+  --card-foreground: var(--dr-ink);
+  --popover: var(--dr-surface);
+  --popover-foreground: var(--dr-ink);
+  --primary: var(--dr-blue-600);
+  --primary-foreground: #ffffff;
+  --secondary: #eef3fb;
+  --secondary-foreground: var(--dr-ink);
+  --muted: #eef3fb;
+  --muted-foreground: var(--dr-muted);
+  --accent: #eaf0ff;
+  --accent-foreground: var(--dr-blue-700);
+  --destructive: #c8324b;
+  --border: var(--dr-line);
+  --input: var(--dr-surface);
+  --ring: var(--dr-blue-600);
+  --sidebar: var(--dr-navy-950);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: var(--dr-blue-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--dr-navy-800);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: var(--dr-yellow-500);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

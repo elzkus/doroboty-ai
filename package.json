@@ -14,9 +14,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run format:check && npm run design-system:check && npm run lint && npm run typecheck && npm test && npm run verify:packet && npm run build && npm run test:e2e",
+    "check": "npm run format:check && npm run design-system:check && npm run lint && npm run typecheck && npm test && npm run verify:packet && npm run build && npm run release:manifest:dirty && npm run release:verify && npm run verify:rollback && npm run test:e2e",
+    "release:manifest": "node scripts/release-artifact.mjs create",
+    "release:manifest:dirty": "node scripts/release-artifact.mjs create --allow-dirty",
+    "release:verify": "node scripts/release-artifact.mjs verify",
+    "release:prepare": "npm run build && npm run release:manifest && npm run release:verify",
     "package:participant": "node scripts/package-participant.mjs",
     "verify:packet": "node scripts/verify-participant.mjs",
+    "verify:rollback": "node scripts/verify-rollback.mjs",
     "design-system:check": "node docs/design-system/verify-kit.mjs && npm --prefix docs/design-system/agent-kit run check",
     "design-system:dev": "npm --prefix docs/design-system/agent-kit run dev"
   },
@@ -46,7 +51,7 @@
     "vite": "^7.0.0",
     "@vitejs/plugin-react": "^5.0.0",
     "@tailwindcss/vite": "^4",
-    "typescript-eslint": "^8.0.0",
+    "typescript-eslint": "^8.73.0",
     "@eslint/js": "^9",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.0",
@@ -54,6 +59,11 @@
   },
   "engines": {
     "node": ">=24 <27"
+  },
+  "overrides": {
+    "@ts-morph/common": {
+      "minimatch": "11.0.9"
+    }
   },
   "type": "module"
 }

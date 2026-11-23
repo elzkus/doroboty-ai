@@ -241,6 +241,113 @@ test("invalid import preserves state, valid import replaces state, reset asks fo
     ),
   ).toBe(null);
 });
+test("exported backup restores profile, application and process history after local data changes", async ({
+  page,
+}) => {
+  const backupState = initialState();
+  backupState.activePersonId = "candidate-marek";
+  const backupPerson = backupState.people.find((person) => person.id === "candidate-marek")!;
+  backupPerson.name = "Marek odzyskany z kopii";
+  backupPerson.bio = "Profil zachowany w eksportowanej kopii scenariusza.";
+  const backupApplication = backupState.applications.find(
+    (application) => application.id === "application-example",
+  )!;
+  backupApplication.answer =
+    "Odpowiedź aplikacyjna zachowana w kopii i sprawdzona po pełnym odtworzeniu scenariusza.";
+  backupApplication.stage = "reviewed";
+  backupApplication.events.push({
+    stage: "reviewed",
+    at: "2026-11-03T10:30:00.000Z",
+    note: "Odzyskany wpis historii procesu.",
+  });
+
+  await page.goto("/");
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value),
+    [STORAGE_KEY, JSON.stringify(backupState)],
+  );
+  await page.reload();
+  await page.goto("/#/app/settings");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Eksportuj dane", exact: true }).click();
+  const download = await downloadPromise;
+  const backupBytes = await readFile((await download.path())!);
+  expect(download.suggestedFilename()).toBe("doroboty-scenariusz.json");
+  expect(JSON.parse(backupBytes.toString())).toMatchObject({
+    activePersonId: "candidate-marek",
+    people: expect.arrayContaining([
+      expect.objectContaining({
+        id: "candidate-marek",
+        name: "Marek odzyskany z kopii",
+      }),
+    ]),
+    applications: expect.arrayContaining([
+      expect.objectContaining({
+        id: "application-example",
+        stage: "reviewed",
+      }),
+    ]),
+  });
+
+  const changedState = initialState();
+  changedState.activePersonId = "candidate-marek";
+  changedState.people.find((person) => person.id === "candidate-marek")!.name =
+    "Marek po utracie danych";
+  changedState.applications = [];
+  await page.evaluate(
+    ([key, value]) => localStorage.setItem(key, value),
+    [STORAGE_KEY, JSON.stringify(changedState)],
+  );
+  await page.reload();
+  await expect(page.getByText("Marek po utracie danych", { exact: true }).first()).toBeVisible();
+
+  await page.getByLabel("Importuj plik scenariusza").setInputFiles({
+    name: download.suggestedFilename(),
+    mimeType: "application/json",
+    buffer: backupBytes,
+  });
+  await page.getByRole("button", { name: "Importuj", exact: true }).click();
+  await expect(page.getByRole("status")).toHaveText("Dane zostały zaimportowane.");
+  await page.reload();
+
+  const restored = await page.evaluate(
+    (key) => JSON.parse(localStorage.getItem(key)!),
+    STORAGE_KEY,
+  );
+  expect(
+    restored.people.find((person: { id: string }) => person.id === "candidate-marek"),
+  ).toMatchObject({
+    name: "Marek odzyskany z kopii",
+    bio: "Profil zachowany w eksportowanej kopii scenariusza.",
+  });
+  expect(
+    restored.applications.find(
+      (application: { id: string }) => application.id === "application-example",
+    ),
+  ).toMatchObject({
+    answer:
+      "Odpowiedź aplikacyjna zachowana w kopii i sprawdzona po pełnym odtworzeniu scenariusza.",
+    stage: "reviewed",
+    events: expect.arrayContaining([
+      expect.objectContaining({
+        stage: "reviewed",
+        note: "Odzyskany wpis historii procesu.",
+      }),
+    ]),
+  });
+
+  await page.goto("/#/app/profil");
+  await expect(page.getByRole("heading", { name: "Marek odzyskany z kopii" })).toBeVisible();
+  await expect(page.getByText("Profil zachowany w eksportowanej kopii scenariusza.")).toBeVisible();
+  await page.goto("/#/app/aplikacje/application-example");
+  await expect(page.locator(".record-stage")).toHaveText("W przeglądzie");
+  await expect(
+    page.getByText(
+      "Odpowiedź aplikacyjna zachowana w kopii i sprawdzona po pełnym odtworzeniu scenariusza.",
+    ),
+  ).toBeVisible();
+});
 test("unreadable save stays untouched while the user works in memory", async ({ page }) => {
   await page.goto("/");
   await page.evaluate((key) => localStorage.setItem(key, '{"version":999}'), STORAGE_KEY);
@@ -305,7 +412,7 @@ test("mobile navigation, light-only appearance and keyboard person selection", a
   await page.reload();
   await expect(page.getByRole("combobox", { name: "Motyw" })).toHaveCount(0);
   await expect(page.locator("html")).not.toHaveClass(/dark/);
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 244, 240)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 247, 252)");
   await page.screenshot({ path: "artifacts/settings-mobile-light.png", fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -322,7 +429,7 @@ test("core screens have no serious accessibility violations", async ({ page }) =
 test("public home and filters reflow at 320px with no external requests", async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Praca dla ludzi");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Znajdź swoją pracę w AI.");
   await page.screenshot({ path: "artifacts/home-desktop.png", fullPage: true });
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/#/oferty");
@@ -476,7 +583,7 @@ test("legacy dark preference keeps scenario data and renders the light interface
     "Zachowaj mój profil",
   );
   await expect(page.locator("html")).not.toHaveClass(/dark/);
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 244, 240)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 247, 252)");
   await page.getByRole("button", { name: "Zapisz profil", exact: true }).click();
   expect(
     await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).theme, STORAGE_KEY),
@@ -649,7 +756,7 @@ test("candidate completes the shared questionnaire with a simulated portfolio dr
   );
 });
 
-test("Poster People offer keeps desktop conditions/actions and places them before mobile reading", async ({
+test("Navy Signal offer keeps desktop conditions/actions and places them before mobile reading", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -712,7 +819,7 @@ test("restored company and public navigation keep their structure across screen 
   }
   await page.goto("/#/oferty");
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Dobra robota.");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Znajdź swoją pracę w AI.");
   await expect(page.getByRole("textbox", { name: "Szukaj ofert", exact: true })).toBeVisible();
   await expect(page.locator("[data-job-page-summary]")).toHaveText("Oferty 1–6 z 6");
   await page.screenshot({ path: "artifacts/original-list-layout-desktop.png", fullPage: true });
@@ -760,14 +867,14 @@ test("desktop reset synchronizes search, category and facets with the URL", asyn
   );
 });
 
-test("canonical marketplace typography and search geometry match Poster People breakpoints", async ({
+test("canonical marketplace typography and search geometry match Navy Signal breakpoints", async ({
   page,
 }) => {
   for (const [width, title, card] of [
-    [1280, "72px", "28px"],
-    [1100, "58px", "26px"],
-    [850, "52px", "28px"],
-    [390, "43px", "26px"],
+    [1280, "82px", "24px"],
+    [1100, "77px", "24px"],
+    [850, "59.5px", "24px"],
+    [390, "48px", "21px"],
   ] as const) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/#/oferty");
@@ -775,14 +882,14 @@ test("canonical marketplace typography and search geometry match Poster People b
     await expect(page.locator(".pp-job-title").first()).toHaveCSS("font-size", card);
     await expect(page.getByRole("textbox", { name: "Szukaj ofert", exact: true })).toBeVisible();
     if (width === 1280) {
-      expect((await page.locator(".pp-search-form").boundingBox())!.width).toBe(1200);
+      expect((await page.locator(".pp-search-form").boundingBox())!.width).toBeLessThanOrEqual(980);
       await expect(page.locator(".pp-salary-tag").first()).toHaveCSS("font-size", "15px");
     }
   }
   for (const [width, title, salary] of [
     [1280, "64px", "24px"],
-    [850, "46px", "20px"],
-    [390, "47px", "25px"],
+    [850, "51px", "20px"],
+    [390, "46px", "25px"],
   ] as const) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/#/oferty/ai-product-manager");
@@ -828,7 +935,7 @@ for (const width of [1280, 390])
     await expect(query).toBeFocused();
     await expect(page).not.toHaveURL(/remote=/);
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("heading", { name: "Oferty pracy", exact: true })).toBeFocused();
+    await expect(page.locator(".pp-results-title h2")).toBeFocused();
     await expect(page.getByRole("textbox", { name: "Szukaj ofert", exact: true })).toHaveValue("");
   });
 
@@ -839,8 +946,9 @@ test("homepage surfaces and marketplace action type roles match the shared refer
   const cards = page.locator("main article.prototype-panel");
   await expect(cards).toHaveCount(3);
   for (const card of await cards.all()) {
-    await expect(card).toHaveCSS("border-radius", "24px");
-    await expect(card).toHaveCSS("box-shadow", /rgb\(24, 24, 24\).*1px inset/);
+    await expect(card).toHaveCSS("border-radius", "14px");
+    await expect(card).toHaveCSS("border-color", "rgb(219, 227, 240)");
+    await expect(card).toHaveCSS("box-shadow", "none");
   }
   for (const [width, searchSize, offerSize, payLine] of [
     [1280, "14px", "14px", "34.8px"],
@@ -857,7 +965,7 @@ test("homepage surfaces and marketplace action type roles match the shared refer
     await expect(search).toHaveCSS("font-weight", "600");
     await expect(search).toHaveCSS("letter-spacing", "normal");
     await expect(search).toHaveCSS("line-height", `${parseInt(searchSize) * 1.5}px`);
-    await expect(search).toHaveCSS("border-top-width", "1px");
+    await expect(search).toHaveCSS("border-top-width", "0px");
     await expect(search).toHaveCSS("box-shadow", "none");
     await page.goto("/#/oferty/ai-product-manager");
     const action = page.locator(".pp-offer-actions a").first();
@@ -1071,6 +1179,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     await page.clock.fastForward(reducedMotion === "reduce" ? 1 : 1000);
     await expect(page).toHaveURL(/#\/app\/aplikacje\?wyslano=1$/);
     await expect(page.locator(".confetti-burst")).toHaveCount(0);
+    await page.clock.resume();
     await page.reload();
     await expect(page.locator(".confetti-burst")).toHaveCount(0);
     await page.goto("/#/aplikuj/ai-product-manager");

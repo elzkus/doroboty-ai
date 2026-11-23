@@ -4,7 +4,7 @@ Start with npm ci and npm run dev. Do not infer work from historical course mate
 
 ## UI work is based on the local design system
 
-Read [project integration instructions](docs/design-system/README.md), [host implementation rules](docs/design-system/IMPLEMENTATION.md) and [application acceptance checklist](docs/design-system/VERIFICATION.md) first, followed by [design.md](docs/design-system/agent-kit/design.md), [component API](docs/design-system/agent-kit/components/API.md) and the relevant [human reference](docs/design-system/agent-kit/reference/components.md). Poster People is the required visual direction for new and changed screens; the previous theme guides are removed. The current host adaptation is implementation to verify, not an alternative visual authority.
+Read [project integration instructions](docs/design-system/README.md), the active [Navy Signal contract](docs/design-system/NAVY_SIGNAL.md) and [GUI.md](GUI.md) before UI work. Navy Signal is the required visual direction for new and changed screens. The Poster People kit and its companion documents are retained only as historical evidence.
 
 Use the packaged CSS, anatomy, responsive examples, local Geist Serif and illustration. Adapt them into existing React features, Base UI `render` components and host tokens; preserve hash routing, Zod, persona data, localStorage and application/employer workflows. The vanilla example controllers and numeric demo jobs are references, not product code to mount. Scope visual changes to the requested task. Follow the current ownership map and compare actual anatomy/type/state with the source; updating guidance alone does not verify the running UI.
 

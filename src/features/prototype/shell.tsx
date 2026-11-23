@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import {
   Menu,
@@ -14,14 +14,14 @@ import {
   Settings,
   LayoutDashboard,
 } from "lucide-react";
-import { BrandMark } from "@/features/public/brand-mark";
+import { BrandMark, BrandWordmark } from "@/features/public/brand-mark";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { currentPerson } from "./model";
 import { usePrototype } from "./store";
 import { cn } from "@/lib/utils";
 const navigation = [
-  { to: "/oferty", label: "Oferty" },
-  { to: "/metodologia", label: "Metodologia" },
+  { to: "/oferty", label: "Oferty pracy" },
+  { to: "/auth/sign-in?audience=candidate", label: "Dla kandydatów" },
   { to: "/auth/sign-in?audience=employer&next=/app/oferty", label: "Dla firm" },
 ];
 
@@ -106,7 +106,15 @@ export function Shell() {
         </p>
       )}
       <div key={`${state.activePersonId}:${pathname}`}>
-        <Outlet />
+        <Suspense
+          fallback={
+            <div aria-live="polite" className="prototype-notice">
+              Ładowanie widoku…
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </div>
     </>
   );
@@ -127,7 +135,7 @@ export function Shell() {
           <div className="mobile-header">
             <Link to="/" className="brand">
               <BrandMark />
-              DoRoboty.ai
+              <BrandWordmark />
             </Link>
             <Button
               aria-label={menuAt === pathname ? "Zamknij menu" : "Otwórz menu"}
@@ -148,7 +156,7 @@ export function Shell() {
           >
             <Link className="brand" to="/">
               <BrandMark />
-              DoRoboty.ai
+              <BrandWordmark />
             </Link>
             <div className="workspace-label">
               <span className="workspace-avatar">{person.name[0]}</span>
@@ -212,7 +220,7 @@ export function Shell() {
                 aria-label="DoRoboty.ai — strona główna"
               >
                 <BrandMark />
-                <span>DoRoboty.ai</span>
+                <BrandWordmark />
               </Link>
               <nav aria-label="Główna nawigacja" className="flex items-center gap-2 sm:gap-5">
                 {navigation.map((item) => (
@@ -242,13 +250,7 @@ export function Shell() {
                         </Link>
                       </>
                     )}
-                    <Link
-                      to="/app"
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "lg" }),
-                        "text-sm font-medium max-sm:min-h-10 max-sm:px-[var(--gui-space-xs)] max-sm:text-sm",
-                      )}
-                    >
+                    <Link className="public-account-link" to="/app">
                       Moje konto
                     </Link>
                     <Link
@@ -265,27 +267,27 @@ export function Shell() {
                   </div>
                 ) : (
                   <>
-                    <Link
-                      to="/auth/sign-in?audience=candidate"
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "lg" }),
-                        "text-sm font-medium max-sm:min-h-10 max-sm:px-[var(--gui-space-xs)] max-sm:text-sm",
-                      )}
-                    >
-                      Wybierz osobę
+                    <Link className="public-account-link" to="/auth/sign-in?audience=candidate">
+                      Zaloguj się
                     </Link>
                   </>
                 )}
+                <Link
+                  className={cn(buttonVariants({ size: "lg" }), "public-post-job")}
+                  to="/auth/sign-in?audience=employer&next=/app/oferty/nowa"
+                >
+                  Dodaj ofertę
+                </Link>
               </nav>
             </div>
           </header>
           <main id="main" ref={main} tabIndex={-1} className="outline-none">
             {content}
           </main>
-          <footer className="bg-muted/40 text-foreground shadow-[var(--gui-divider-top-shadow)]">
+          <footer className="public-footer bg-muted/40 text-foreground shadow-[var(--gui-divider-top-shadow)]">
             <div className="mx-auto grid max-w-[1360px] gap-10 px-5 py-12 sm:grid-cols-2 lg:px-8">
               <div>
-                <p className="text-base font-semibold">DoRoboty.ai</p>
+                <p className="text-base font-semibold">doroboty.ai</p>
                 <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
                   Praca dla ludzi, którzy potrafią z AI zbudować coś wartościowego — nie tylko
                   wpisać je do CV.

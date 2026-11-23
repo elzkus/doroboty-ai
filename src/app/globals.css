@@ -9,6 +9,7 @@
 @import "./application.css";
 @import "./ai-experience.css";
 @import "./interactions.css";
+@import "./navy-signal.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -125,13 +126,6 @@
   }
 }
 
-@font-face {
-  font-family: "Geist Serif";
-  src: url("../../docs/design-system/agent-kit/assets/fonts/GeistSerif-Regular.woff2")
-    format("woff2");
-  font-weight: 400;
-  font-display: swap;
-}
 :root {
-  --font-timeless: "Timeless Grotesk", sans-serif;
+  --font-timeless: var(--dr-font-sans);
 }

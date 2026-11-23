@@ -1,6 +1,6 @@
 # Runtime typography
 
-The application loads local Geist Serif Regular 400 from `docs/design-system/agent-kit/assets/fonts/GeistSerif-Regular.woff2` through Vite. Its SIL OFL license remains beside the font. All headings use this weight without synthetic bold. Body and controls use Arial/Helvetica/system sans; they make no remote font requests.
+Navy Signal uses one sans-serif stack for headings, body text and controls: Arial, Helvetica Neue and system UI fallbacks. The application does not load a remote font. Geist Serif remains in the historical Poster People kit but is no longer loaded by the runtime.
 
 ## Retained historical assets
 

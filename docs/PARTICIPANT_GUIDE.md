@@ -27,6 +27,12 @@ Changes survive reload in this browser. Settings can export a JSON file, import 
 
 A URL shares the interface, not your local changes. To transfer a scenario, share the exported file and import it in the other browser. Exports include all personas, applications and notes; never enter real personal data.
 
+## Report a problem
+
+Use the contact channel named by the instructor before the exercise. Report the time, page or step, browser family and what you expected to happen. Do not send a real CV, exported scenario, localStorage contents, application text, employer notes, tokens or screenshots containing personal data. If the interface still works, keep the tab open and export the synthetic scenario before resetting anything.
+
+The exact support channel and incident owner must be completed in `docs/DEPLOYMENT_DECISIONS.md` before the published address is shared.
+
 ## Static build
 
 Run npm run build. Serve dist/ through any static HTTP host. No provider account is needed for local development. Do not open index.html via file://; ES modules need HTTP. Hash links work without route rewrite configuration.
