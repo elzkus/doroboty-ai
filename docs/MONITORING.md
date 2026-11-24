@@ -2,7 +2,15 @@
 
 Monitoring must reveal that the published prototype is unavailable or unusable without collecting participant application text, CVs, localStorage, exported scenarios, tokens or other browser content.
 
-## Signals to configure after provider selection
+## Configured product signal
+
+The published prototype uses EU PostHog when `VITE_POSTHOG_PROJECT_TOKEN` is present during the
+Netlify build. The adapter records sanitized route groups, successful domain actions and the
+existing generic operational-error class. DOM autocapture, raw page URLs, persistence, person
+profiles, surveys, heatmaps, performance capture, external dependency loading and session replay
+are disabled in code. The public project token is a build setting, not an application secret.
+
+## Signals to configure after hosting review
 
 1. **Availability:** the exact HTTPS root and `/#/oferty/ai-product-manager` return the application shell and required assets.
 2. **Static delivery:** provider deployment status/logs show failed HTML, JavaScript, CSS or image requests for the recorded deployment.
@@ -28,4 +36,5 @@ After a provider/tool is selected:
 6. send a test alert and confirm delivery to the named owner;
 7. record the target deployment, time, event identifier and recipient confirmation in the readiness report.
 
-No monitoring service is selected or connected in this repository. Documentation alone does not make monitoring pass; the production event and delivered alert remain deployment-stage evidence.
+PostHog product events are selected and locally verified. Production delivery and alerting remain
+deployment-stage evidence and must not be inferred from repository configuration alone.

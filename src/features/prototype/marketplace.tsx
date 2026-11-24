@@ -25,6 +25,7 @@ import { usePrototype } from "./store";
 import { currentPerson, publishedJobs } from "./model";
 import { NotFound } from "./shell";
 import { cn } from "@/lib/utils";
+import { captureAnalytics } from "@/lib/analytics";
 
 function LocalMap({ jobs }: { jobs: JobWithCompany[] }) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -123,6 +124,7 @@ export function JobsPage() {
     if (value) next.set(key, value);
     else next.delete(key);
     setParams(next);
+    captureAnalytics("job_filter_changed", { filter: key, has_value: Boolean(value) });
   }
   function removeFilter(key: string) {
     const keys = Object.entries(filters)
@@ -146,6 +148,10 @@ export function JobsPage() {
       else next.delete(key);
     }
     setParams(next);
+    captureAnalytics("job_search_submitted", {
+      query_length: String(data.get("query") ?? "").trim().length,
+      has_location: Boolean(String(data.get("location") ?? "").trim()),
+    });
   }
   const locations = [...new Set(all.flatMap((x) => x.locations))];
   return (

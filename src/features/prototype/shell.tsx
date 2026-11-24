@@ -19,6 +19,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { currentPerson } from "./model";
 import { usePrototype } from "./store";
 import { cn } from "@/lib/utils";
+import { captureAnalytics, routeGroup } from "@/lib/analytics";
 const navigation = [
   { to: "/oferty", label: "Oferty pracy" },
   { to: "/auth/sign-in?audience=candidate", label: "Dla kandydatów" },
@@ -82,6 +83,9 @@ export function Shell() {
       lastPath.current = pathname;
     }
   }, [pathname, clearError]);
+  useEffect(() => {
+    captureAnalytics("route_viewed", { route: routeGroup(pathname), role: person?.role });
+  }, [pathname, person?.role]);
   const nav =
     person?.role === "employer"
       ? employerNav

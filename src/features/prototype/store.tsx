@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { initialState, transition, type Action, type State } from "./model";
 import { parseState, readState, saveState, type StoragePort } from "./storage";
 import { aiExperienceSchema, type AiExperience } from "./ai-experience";
+import { captureAnalytics, captureDomainAction } from "@/lib/analytics";
 function browserStorage(): StoragePort | null {
   try {
     return window.localStorage;
@@ -33,7 +34,10 @@ function useStore() {
   }
   function run(action: Action) {
     try {
-      commit(transition(latest.current, action));
+      const before = latest.current;
+      const after = transition(before, action);
+      commit(after);
+      captureDomainAction(action, before, after);
       return true;
     } catch (e) {
       setError(
@@ -68,6 +72,7 @@ function useStore() {
       const parsed = aiExperienceSchema.parse(value);
       setAiExperiences((current) => ({ ...current, [person.id]: parsed }));
       setError("");
+      captureAnalytics("ai_experience_saved", { role: person.role });
       return true;
     } catch (e) {
       setError(
@@ -82,6 +87,7 @@ function useStore() {
     setAiExperiences({});
     setRemovedProfileCvs({});
     commit(initialState(), true);
+    captureAnalytics("scenario_reset");
   }
   return {
     state,
