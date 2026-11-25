@@ -125,9 +125,11 @@ export function PrivacyPage() {
         </p>
         <p>
           Profile, aplikacje i ustawienia pozostają w pamięci tej przeglądarki. Aplikacja nie wysyła
-          ich do bazy ani dostawcy AI. Do europejskiej usługi PostHog trafiają wyłącznie nazwane
-          zdarzenia o rodzaju odwiedzonego widoku i wykonanej akcji — bez nazw, treści formularzy,
-          CV, notatek, zapytań wyszukiwania i pełnych adresów. Nagrywanie sesji jest wyłączone. Plik
+          ich do bazy ani dostawcy AI. Europejska usługa PostHog rejestruje nazwane zdarzenia oraz
+          anonimowe kliknięcia w linki i przyciski na publicznych stronach. Autocapture jest
+          wyłączony w formularzach, ekranie wyboru osoby, aplikowaniu i całej strefie użytkownika;
+          tekst oraz atrybuty elementów są maskowane. Do PostHog nie trafiają nazwy, treści pól, CV,
+          notatki, zapytania wyszukiwania ani pełne adresy. Nagrywanie sesji jest wyłączone. Plik
           eksportu zawiera cały lokalny scenariusz, w tym notatki.
         </p>
         <p>

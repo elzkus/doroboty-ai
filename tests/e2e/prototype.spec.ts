@@ -19,6 +19,21 @@ async function application(page: Page) {
   await page.getByRole("button", { name: "Wyślij aplikację", exact: true }).click();
 }
 
+test("autocapture excludes private routes and keeps public listings eligible", async ({ page }) => {
+  await page.goto("/#/oferty");
+  await expect(page.locator("main#main")).not.toHaveAttribute("data-ph-no-autocapture", "");
+
+  await page.goto("/#/auth/sign-in");
+  await expect(page.locator("main#main")).toHaveAttribute("data-ph-no-autocapture", "");
+
+  await page.getByRole("button", { name: "Wejdź jako Anna Kowalska", exact: true }).click();
+  await page.goto("/#/app/profil");
+  await expect(page.locator(".app-frame")).toHaveAttribute("data-ph-no-autocapture", "");
+
+  await page.goto("/#/aplikuj/ai-product-manager");
+  await expect(page.locator("main#main")).toHaveAttribute("data-ph-no-autocapture", "");
+});
+
 for (const [name, filename] of [
   ["Anna Kowalska", "anna-kowalska-cv-v1.pdf"],
   ["Marek Nowak", "marek-nowak-cv-v1.pdf"],

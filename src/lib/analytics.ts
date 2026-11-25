@@ -1,4 +1,5 @@
 import type { Action, State } from "@/features/prototype/model";
+import type { AutocaptureConfig } from "posthog-js";
 
 type AnalyticsValue = boolean | number | string;
 type AnalyticsProperties = Record<string, AnalyticsValue | undefined>;
@@ -9,6 +10,31 @@ type PostHogClient = (typeof import("posthog-js"))["default"];
 let client: PostHogClient | undefined;
 let initialization: Promise<void> | undefined;
 
+export const safeAutocaptureConfig: AutocaptureConfig = {
+  capture_copied_text: false,
+  capture_value_css_selector_allowlist: [],
+  css_selector_ignorelist: [
+    ".ph-no-autocapture",
+    "[data-ph-no-autocapture]",
+    "form",
+    "input",
+    "textarea",
+    "select",
+    "[contenteditable='true']",
+  ],
+  dom_event_allowlist: ["click"],
+  element_allowlist: ["a", "button"],
+};
+
+export function isPrivateAutocaptureRoute(pathname: string) {
+  return (
+    pathname === "/app" ||
+    pathname.startsWith("/app/") ||
+    pathname.startsWith("/auth/") ||
+    pathname.startsWith("/aplikuj/")
+  );
+}
+
 export function initializeAnalytics() {
   if (!projectToken) return Promise.resolve();
   initialization ??= import("posthog-js").then(({ default: posthog }) => {
@@ -16,7 +42,7 @@ export function initializeAnalytics() {
       api_host: apiHost,
       ui_host: "https://eu.posthog.com",
       defaults: "2026-08-30",
-      autocapture: false,
+      autocapture: safeAutocaptureConfig,
       capture_pageview: false,
       capture_pageleave: false,
       capture_dead_clicks: false,

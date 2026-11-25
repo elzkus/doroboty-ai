@@ -19,7 +19,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { currentPerson } from "./model";
 import { usePrototype } from "./store";
 import { cn } from "@/lib/utils";
-import { captureAnalytics, routeGroup } from "@/lib/analytics";
+import { captureAnalytics, isPrivateAutocaptureRoute, routeGroup } from "@/lib/analytics";
 const navigation = [
   { to: "/oferty", label: "Oferty pracy" },
   { to: "/auth/sign-in?audience=candidate", label: "Dla kandydatów" },
@@ -135,7 +135,7 @@ export function Shell() {
         Przejdź do treści
       </a>
       {workspace ? (
-        <div className="app-frame">
+        <div className="app-frame" data-ph-no-autocapture="">
           <div className="mobile-header">
             <Link to="/" className="brand">
               <BrandMark />
@@ -285,7 +285,13 @@ export function Shell() {
               </nav>
             </div>
           </header>
-          <main id="main" ref={main} tabIndex={-1} className="outline-none">
+          <main
+            id="main"
+            ref={main}
+            tabIndex={-1}
+            className="outline-none"
+            data-ph-no-autocapture={isPrivateAutocaptureRoute(pathname) ? "" : undefined}
+          >
             {content}
           </main>
           <footer className="public-footer bg-muted/40 text-foreground shadow-[var(--gui-divider-top-shadow)]">

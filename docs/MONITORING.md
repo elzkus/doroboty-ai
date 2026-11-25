@@ -6,9 +6,11 @@ Monitoring must reveal that the published prototype is unavailable or unusable w
 
 The published prototype uses EU PostHog when `VITE_POSTHOG_PROJECT_TOKEN` is present during the
 Netlify build. The adapter records sanitized route groups, successful domain actions and the
-existing generic operational-error class. DOM autocapture, raw page URLs, persistence, person
+existing generic operational-error class. Autocapture is limited to clicks on links and buttons on
+public, non-form pages. Forms, inputs, authentication, application flows and the entire user
+workspace are excluded; element text and attributes are masked. Raw page URLs, persistence, person
 profiles, surveys, heatmaps, performance capture, external dependency loading and session replay
-are disabled in code. The public project token is a build setting, not an application secret.
+remain disabled in code. The public project token is a build setting, not an application secret.
 
 ## Signals to configure after hosting review
 
